@@ -28,6 +28,7 @@ type UI struct {
 	inputLayerers []input.Layerer
 	renderers     []widget.Renderer
 	windows       []*widget.Window
+	nextWindowsId int
 }
 
 // RemoveWindowFunc is a function to remove a Window from rendering.
@@ -65,21 +66,53 @@ func (u *UI) Draw(screen *ebiten.Image) {
 }
 
 func (u *UI) handleFocus() {
-	if input.MouseButtonJustPressed(ebiten.MouseButtonLeft) {
-		if u.focusedWidget != nil {
-			u.focusedWidget.(widget.Focuser).Focus(false)
-			u.focusedWidget = nil
-		}
+	if !input.MouseButtonJustPressed(ebiten.MouseButtonLeft) {
+		return
+	}
 
-		x, y := input.CursorPosition()
-		w := u.Container.WidgetAt(x, y)
-		if w != nil {
-			if f, ok := w.(widget.Focuser); ok {
-				f.Focus(true)
-				u.focusedWidget = w
-			}
+	if u.focusedWidget != nil {
+		u.focusedWidget.(widget.Focuser).Focus(false)
+		u.focusedWidget = nil
+	}
+
+	x, y := input.CursorPosition()
+
+	for i := len(u.windows) - 1; i >= 0; i-- {
+		if u.handleContainerFocus(u.windows[i].Container(), x, y) {
+			u.windowToTop(i)
+			return
 		}
 	}
+	u.handleContainerFocus(u.Container, x, y)
+}
+
+func (u *UI) windowToTop(i int) {
+	if len(u.windows) == 1 || i == len(u.windows)-1 {
+		return
+	}
+	w := u.windows[i]
+	u.windows = append(u.windows[:i], u.windows[i+1:]...)
+	u.windows = append(u.windows, w)
+}
+
+func (u *UI) handleContainerFocus(c *widget.Container, x int, y int) bool {
+	w := c.WidgetAt(x, y)
+	if w == nil {
+		return false
+	}
+
+	if !w.GetWidget().EffectiveInputLayer().ActiveFor(x, y, input.LayerEventTypeMouseButton) {
+		return false
+	}
+
+	f, ok := w.(widget.Focuser)
+	if !ok {
+		return true
+	}
+
+	f.Focus(true)
+	u.focusedWidget = w
+	return true
 }
 
 func (u *UI) setupInputLayers() {
@@ -142,16 +175,18 @@ func (u *UI) render(screen *ebiten.Image) {
 
 // AddWindow adds window w to u for rendering. It returns a function to remove w from u.
 func (u *UI) AddWindow(w *widget.Window) RemoveWindowFunc {
+	w.ID = u.nextWindowsId
 	u.windows = append(u.windows, w)
+	u.nextWindowsId++
 
 	return func() {
-		u.removeWindow(w)
+		u.removeWindow(w.ID)
 	}
 }
 
-func (u *UI) removeWindow(w *widget.Window) {
+func (u *UI) removeWindow(id int) {
 	for i, uw := range u.windows {
-		if uw == w {
+		if uw.ID == id {
 			u.windows = append(u.windows[:i], u.windows[i+1:]...)
 			break
 		}

@@ -657,7 +657,6 @@ func openWindow2(res *uiResources, ui func() *ebitenui.UI) {
 	c.AddChild(cb)
 
 	w := widget.NewWindow(
-		widget.WindowOpts.Modal(),
 		widget.WindowOpts.Contents(c),
 	)
 

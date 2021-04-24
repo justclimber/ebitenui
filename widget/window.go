@@ -8,6 +8,7 @@ import (
 )
 
 type Window struct {
+	ID    int
 	Modal bool
 
 	contents *Container
@@ -42,6 +43,10 @@ func (o WindowOptions) Modal() WindowOpt {
 	}
 }
 
+func (w *Window) Container() *Container {
+	return w.contents
+}
+
 func (w *Window) SetLocation(rect image.Rectangle) {
 	w.contents.SetLocation(rect)
 }
@@ -51,14 +56,25 @@ func (w *Window) RequestRelayout() {
 }
 
 func (w *Window) SetupInputLayer(def input.DeferredSetupInputLayerFunc) {
+	var l *input.Layer
 	if w.Modal {
-		w.contents.GetWidget().ElevateToNewInputLayer(&input.Layer{
+		l = &input.Layer{
 			DebugLabel: "modal window",
 			EventTypes: input.LayerEventTypeAll,
 			BlockLower: true,
 			FullScreen: true,
-		})
+		}
+	} else {
+		l = &input.Layer{
+			DebugLabel: "window",
+			EventTypes: input.LayerEventTypeAll,
+			BlockLower: true,
+			RectFunc: func() image.Rectangle {
+				return w.contents.GetWidget().Rect
+			},
+		}
 	}
+	w.contents.GetWidget().ElevateToNewInputLayer(l)
 }
 
 func (w *Window) Render(screen *ebiten.Image, def DeferredRenderFunc) {
