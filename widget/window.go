@@ -10,9 +10,16 @@ import (
 type Window struct {
 	ID    int
 	Modal bool
+	state windowState
 
-	contents *Container
+	init *MultiOnce
+
+	movable   *Container
+	contents  *Container
+	container *Container
 }
+
+type windowState func(*ebiten.Image, DeferredRenderFunc) (nextState windowState, rerun bool)
 
 type WindowOpt func(w *Window)
 
@@ -22,11 +29,14 @@ type WindowOptions struct {
 var WindowOpts WindowOptions
 
 func NewWindow(opts ...WindowOpt) *Window {
-	w := &Window{}
+	w := &Window{
+		init: &MultiOnce{},
+	}
 
 	for _, o := range opts {
 		o(w)
 	}
+	w.init.Append(w.bootstrap)
 
 	return w
 }
@@ -37,10 +47,31 @@ func (o WindowOptions) Contents(c *Container) WindowOpt {
 	}
 }
 
+func (o WindowOptions) Movable(c *Container) WindowOpt {
+	return func(w *Window) {
+		w.movable = c
+	}
+}
+
 func (o WindowOptions) Modal() WindowOpt {
 	return func(w *Window) {
 		w.Modal = true
 	}
+}
+
+func (w *Window) bootstrap() {
+	w.container = NewContainer(
+		//"window container",
+		ContainerOpts.Layout(NewRowLayout(
+			RowLayoutOpts.Direction(DirectionVertical),
+		)),
+	)
+	if w.movable != nil {
+		w.container.AddChild(w.movable)
+		w.state = w.idleState()
+	}
+
+	w.container.AddChild(w.contents)
 }
 
 func (w *Window) Container() *Container {

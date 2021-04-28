@@ -617,6 +617,25 @@ func openWindow(res *uiResources, ui func() *ebitenui.UI) {
 	)
 	bc.AddChild(cb)
 
+	hc := widget.NewContainer(
+		//"window1 movable",
+		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.RowLayoutData{
+			Stretch: true,
+		})),
+		widget.ContainerOpts.Layout(widget.NewRowLayout(
+			widget.RowLayoutOpts.Direction(widget.DirectionVertical)),
+		),
+		widget.ContainerOpts.BackgroundImage(res.header.background),
+	)
+
+	hc.AddChild(widget.NewText(
+		widget.TextOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.RowLayoutData{
+			Stretch: true,
+		})),
+		widget.TextOpts.Text("label", res.header.face, res.header.color),
+		widget.TextOpts.Position(widget.TextPositionStart, widget.TextPositionCenter),
+	))
+
 	w := widget.NewWindow(
 		widget.WindowOpts.Modal(),
 		widget.WindowOpts.Contents(c),
