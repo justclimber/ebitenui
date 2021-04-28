@@ -45,10 +45,10 @@ const (
 	// GridLayoutPositionStart is the anchoring position for "left" (in the horizontal direction) or "top" (in the vertical direction.)
 	GridLayoutPositionStart = GridLayoutPosition(iota)
 
-	// GridLayoutPositionStart is the center anchoring position.
+	// GridLayoutPositionCenter is the center anchoring position.
 	GridLayoutPositionCenter
 
-	// GridLayoutPositionStart is the anchoring position for "right" (in the horizontal direction) or "bottom" (in the vertical direction.)
+	// GridLayoutPositionEnd is the anchoring position for "right" (in the horizontal direction) or "bottom" (in the vertical direction.)
 	GridLayoutPositionEnd
 )
 
