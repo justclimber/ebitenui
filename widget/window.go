@@ -61,7 +61,7 @@ func (o WindowOptions) Modal() WindowOpt {
 
 func (w *Window) bootstrap() {
 	w.container = NewContainer(
-		//"window container",
+		"window container",
 		ContainerOpts.Layout(NewRowLayout(
 			RowLayoutOpts.Direction(DirectionVertical),
 		)),
@@ -75,18 +75,22 @@ func (w *Window) bootstrap() {
 }
 
 func (w *Window) Container() *Container {
-	return w.contents
+	w.init.Do()
+	return w.container
 }
 
 func (w *Window) SetLocation(rect image.Rectangle) {
-	w.contents.SetLocation(rect)
+	w.init.Do()
+	w.container.SetLocation(rect)
 }
 
 func (w *Window) RequestRelayout() {
-	w.contents.RequestRelayout()
+	w.init.Do()
+	w.container.RequestRelayout()
 }
 
 func (w *Window) SetupInputLayer(def input.DeferredSetupInputLayerFunc) {
+	w.init.Do()
 	var l *input.Layer
 	if w.Modal {
 		l = &input.Layer{
@@ -101,13 +105,70 @@ func (w *Window) SetupInputLayer(def input.DeferredSetupInputLayerFunc) {
 			EventTypes: input.LayerEventTypeAll,
 			BlockLower: true,
 			RectFunc: func() image.Rectangle {
-				return w.contents.GetWidget().Rect
+				return w.container.GetWidget().Rect
 			},
 		}
 	}
-	w.contents.GetWidget().ElevateToNewInputLayer(l)
+	w.container.GetWidget().ElevateToNewInputLayer(l)
+
+	if w.movable != nil {
+		w.movable.GetWidget().ElevateToNewInputLayer(&input.Layer{
+			DebugLabel: "window movable",
+			EventTypes: input.LayerEventTypeMouseButton,
+			BlockLower: true,
+			RectFunc: func() image.Rectangle {
+				return w.movable.GetWidget().Rect
+			},
+		})
+	}
 }
 
-func (w *Window) Render(screen *ebiten.Image, def DeferredRenderFunc) {
-	w.contents.Render(screen, def)
+func (w *Window) Render(screen *ebiten.Image, def DeferredRenderFunc, debugMode DebugMode) {
+	w.init.Do()
+	w.runState(screen, def)
+	w.container.Render(screen, def, debugMode)
+}
+
+func (w *Window) runState(screen *ebiten.Image, def DeferredRenderFunc) {
+	if w.state != nil {
+		for {
+			newState, rerun := w.state(screen, def)
+			if newState != nil {
+				w.state = newState
+			}
+			if !rerun {
+				break
+			}
+		}
+	}
+}
+
+func (w *Window) idleState() windowState {
+	return func(screen *ebiten.Image, def DeferredRenderFunc) (windowState, bool) {
+		if !input.MouseButtonJustPressedLayer(ebiten.MouseButtonLeft, w.movable.widget.EffectiveInputLayer()) {
+			return nil, false
+		}
+
+		x, y := input.CursorPosition()
+		return w.dragState(x, y), false
+	}
+}
+
+func (w *Window) dragState(oldX int, oldY int) windowState {
+	return func(screen *ebiten.Image, def DeferredRenderFunc) (windowState, bool) {
+		if !input.MouseButtonPressed(ebiten.MouseButtonLeft) {
+			return w.idleState(), false
+		}
+		x, y := input.CursorPosition()
+		dx := x - oldX
+		dy := y - oldY
+		if dx != 0 || dy != 0 {
+			rect := w.container.widget.Rect
+			rect = rect.Add(image.Point{X: dx, Y: dy})
+			w.SetLocation(rect)
+			w.RequestRelayout()
+		}
+
+		return w.dragState(x, y), false
+	}
 }

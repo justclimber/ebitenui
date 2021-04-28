@@ -100,9 +100,9 @@ func (s *SelectComboButton) SetLabel(l string) {
 	s.button.SetLabel(l)
 }
 
-func (s *SelectComboButton) Render(screen *ebiten.Image, def DeferredRenderFunc) {
+func (s *SelectComboButton) Render(screen *ebiten.Image, def DeferredRenderFunc, debugMode DebugMode) {
 	s.init.Do()
-	s.button.Render(screen, def)
+	s.button.Render(screen, def, debugMode)
 }
 
 func (s *SelectComboButton) createWidget() {

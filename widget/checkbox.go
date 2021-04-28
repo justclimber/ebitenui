@@ -110,12 +110,12 @@ func (c *Checkbox) SetupInputLayer(def input.DeferredSetupInputLayerFunc) {
 	c.button.SetupInputLayer(def)
 }
 
-func (c *Checkbox) Render(screen *ebiten.Image, def DeferredRenderFunc) {
+func (c *Checkbox) Render(screen *ebiten.Image, def DeferredRenderFunc, debugMode DebugMode) {
 	c.init.Do()
 
 	c.button.GraphicImage = c.state.graphicImage(c.image)
 
-	c.button.Render(screen, def)
+	c.button.Render(screen, def, debugMode)
 }
 
 func (c *Checkbox) createWidget() {

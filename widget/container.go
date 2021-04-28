@@ -10,6 +10,7 @@ import (
 )
 
 type Container struct {
+	DebugLabel          string
 	BackgroundImage     *image.NineSlice
 	AutoDisableChildren bool
 
@@ -37,8 +38,9 @@ type PreferredSizeLocateableWidget interface {
 	Locateable
 }
 
-func NewContainer(opts ...ContainerOpt) *Container {
+func NewContainer(debugLabel string, opts ...ContainerOpt) *Container {
 	c := &Container{
+		DebugLabel: debugLabel,
 		init: &MultiOnce{},
 	}
 
@@ -84,7 +86,7 @@ func (c *Container) AddChild(child PreferredSizeLocateableWidget) RemoveChildFun
 
 	c.children = append(c.children, child)
 
-	child.GetWidget().parent = c.widget
+	child.GetWidget().parent = c
 
 	c.RequestRelayout()
 
@@ -145,7 +147,7 @@ func (c *Container) SetLocation(rect img.Rectangle) {
 	c.widget.Rect = rect
 }
 
-func (c *Container) Render(screen *ebiten.Image, def DeferredRenderFunc) {
+func (c *Container) Render(screen *ebiten.Image, def DeferredRenderFunc, debugMode DebugMode) {
 	c.init.Do()
 
 	if c.AutoDisableChildren {
@@ -154,7 +156,7 @@ func (c *Container) Render(screen *ebiten.Image, def DeferredRenderFunc) {
 		}
 	}
 
-	c.widget.Render(screen, def)
+	c.widget.Render(screen, def, debugMode)
 
 	c.doLayout()
 
@@ -162,7 +164,28 @@ func (c *Container) Render(screen *ebiten.Image, def DeferredRenderFunc) {
 
 	for _, ch := range c.children {
 		if cr, ok := ch.(Renderer); ok {
-			cr.Render(screen, def)
+			cr.Render(screen, def, debugMode)
+		}
+	}
+}
+
+func (c *Container) RenderInputLayerDebug(screen *ebiten.Image) {
+	c.widget.RenderInputLayerDebug(screen)
+	for _, ch := range c.children {
+		if w, ok := ch.(HasWidget); ok {
+			w.GetWidget().RenderInputLayerDebug(screen)
+		}
+	}
+}
+
+func (c *Container) RenderWidgetSizeDebug(screen *ebiten.Image) {
+	c.widget.RenderWidgetRectDebug(screen)
+	for _, ch := range c.children {
+		if cd, ok := ch.(DebugDrawer); ok {
+			cd.RenderWidgetSizeDebug(screen)
+		}
+		if hw, ok := ch.(HasWidget); ok {
+			hw.GetWidget().RenderWidgetRectDebug(screen)
 		}
 	}
 }

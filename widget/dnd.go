@@ -108,7 +108,7 @@ func (d *DragAndDrop) SetupInputLayer(def input.DeferredSetupInputLayerFunc) {
 	}
 }
 
-func (d *DragAndDrop) Render(screen *ebiten.Image, def DeferredRenderFunc) {
+func (d *DragAndDrop) Render(screen *ebiten.Image, def DeferredRenderFunc, debugMode DebugMode) {
 	for {
 		newState, rerun := d.state(screen, def)
 		if newState != nil {
@@ -188,7 +188,7 @@ func (d *DragAndDrop) draggingState(srcWidget HasWidget, srcX int, srcY int, dra
 		if rl, ok := dragWidget.(Relayoutable); ok {
 			rl.RequestRelayout()
 		}
-		dragWidget.Render(screen, def)
+		dragWidget.Render(screen, def, DebugModeNone)
 
 		return d.draggingState(srcWidget, srcX, srcY, dragWidget, dragData), false
 	}

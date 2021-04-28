@@ -105,9 +105,9 @@ func (t *Text) PreferredSize() (int, int) {
 	return int(math.Ceil(t.measurements.boundingBoxWidth)), int(math.Ceil(t.measurements.boundingBoxHeight))
 }
 
-func (t *Text) Render(screen *ebiten.Image, def DeferredRenderFunc) {
+func (t *Text) Render(screen *ebiten.Image, def DeferredRenderFunc, debugMode DebugMode) {
 	t.init.Do()
-	t.widget.Render(screen, def)
+	t.widget.Render(screen, def, debugMode)
 	t.draw(screen)
 }
 

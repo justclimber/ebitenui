@@ -104,7 +104,7 @@ func (l *ListComboButton) SetupInputLayer(def input.DeferredSetupInputLayerFunc)
 	l.button.SetupInputLayer(def)
 }
 
-func (l *ListComboButton) Render(screen *ebiten.Image, def DeferredRenderFunc) {
+func (l *ListComboButton) Render(screen *ebiten.Image, def DeferredRenderFunc, debugMode DebugMode) {
 	l.init.Do()
 
 	v := l.ContentVisible()
@@ -113,7 +113,7 @@ func (l *ListComboButton) Render(screen *ebiten.Image, def DeferredRenderFunc) {
 		l.list.SetScrollTop(0)
 	}
 
-	l.button.Render(screen, def)
+	l.button.Render(screen, def, debugMode)
 
 	l.lastContentVisible = v
 }

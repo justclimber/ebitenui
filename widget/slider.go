@@ -175,13 +175,13 @@ func (s *Slider) SetupInputLayer(def input.DeferredSetupInputLayerFunc) {
 	s.handle.SetupInputLayer(def)
 }
 
-func (s *Slider) Render(screen *ebiten.Image, def DeferredRenderFunc) {
+func (s *Slider) Render(screen *ebiten.Image, def DeferredRenderFunc, debugMode DebugMode) {
 	s.init.Do()
 
 	s.clampCurrentMinMax()
 	s.handle.GetWidget().Disabled = s.widget.Disabled
 
-	s.widget.Render(screen, def)
+	s.widget.Render(screen, def, debugMode)
 
 	s.draw(screen)
 
@@ -189,7 +189,7 @@ func (s *Slider) Render(screen *ebiten.Image, def DeferredRenderFunc) {
 	s.updateHandleLocation(hl, tl)
 	s.updateHandleSize(hl)
 
-	s.handle.Render(screen, def)
+	s.handle.Render(screen, def, debugMode)
 
 	s.fireEvents()
 

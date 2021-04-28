@@ -87,9 +87,13 @@ func (f *FlipBook) SetupInputLayer(def input.DeferredSetupInputLayerFunc) {
 }
 
 // Render implements Renderer.
-func (f *FlipBook) Render(screen *ebiten.Image, def DeferredRenderFunc) {
+func (f *FlipBook) Render(screen *ebiten.Image, def DeferredRenderFunc, debugMode DebugMode) {
 	f.init.Do()
-	f.container.Render(screen, def)
+	f.container.Render(screen, def, debugMode)
+}
+
+func (f *FlipBook) RenderWidgetSizeDebug(screen *ebiten.Image) {
+	f.container.RenderWidgetSizeDebug(screen)
 }
 
 // WidgetAt implements WidgetLocator.
@@ -111,7 +115,7 @@ func (f *FlipBook) WidgetAt(x int, y int) HasWidget {
 }
 
 func (f *FlipBook) createWidget() {
-	f.container = NewContainer(append(f.containerOpts, ContainerOpts.Layout(NewAnchorLayout(f.anchorLayoutOpts...)))...)
+	f.container = NewContainer("flip book", append(f.containerOpts, ContainerOpts.Layout(NewAnchorLayout(f.anchorLayoutOpts...)))...)
 	f.containerOpts = nil
 	f.anchorLayoutOpts = nil
 }

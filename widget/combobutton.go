@@ -108,12 +108,12 @@ func (c *ComboButton) SetupInputLayer(def input.DeferredSetupInputLayerFunc) {
 	}
 }
 
-func (c *ComboButton) Render(screen *ebiten.Image, def DeferredRenderFunc) {
+func (c *ComboButton) Render(screen *ebiten.Image, def DeferredRenderFunc, debugMode DebugMode) {
 	c.init.Do()
 
 	c.handleClick()
 
-	c.button.Render(screen, def)
+	c.button.Render(screen, def, debugMode)
 
 	if c.content != nil && c.ContentVisible {
 		def(c.renderContent)
@@ -130,7 +130,7 @@ func (c *ComboButton) handleClick() {
 	}
 }
 
-func (c *ComboButton) renderContent(screen *ebiten.Image, def DeferredRenderFunc) {
+func (c *ComboButton) renderContent(screen *ebiten.Image, def DeferredRenderFunc, debugMode DebugMode) {
 	c.relayoutContent()
 
 	r, ok := c.content.(Renderer)
@@ -138,7 +138,7 @@ func (c *ComboButton) renderContent(screen *ebiten.Image, def DeferredRenderFunc
 		return
 	}
 
-	r.Render(screen, def)
+	r.Render(screen, def, debugMode)
 }
 
 func (c *ComboButton) relayoutContent() {

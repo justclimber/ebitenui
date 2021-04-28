@@ -80,16 +80,16 @@ func (t *TextToolTip) RequestRelayout() {
 	t.container.RequestRelayout()
 }
 
-func (t *TextToolTip) Render(screen *ebiten.Image, def DeferredRenderFunc) {
+func (t *TextToolTip) Render(screen *ebiten.Image, def DeferredRenderFunc, debugMode DebugMode) {
 	t.init.Do()
 
 	t.text.Label = t.Label
 
-	t.container.Render(screen, def)
+	t.container.Render(screen, def, debugMode)
 }
 
 func (t *TextToolTip) createWidget() {
-	t.container = NewContainer(append(t.containerOpts,
+	t.container = NewContainer("text tooltip", append(t.containerOpts,
 		ContainerOpts.Layout(NewAnchorLayout(
 			AnchorLayoutOpts.Padding(t.padding),
 		)),

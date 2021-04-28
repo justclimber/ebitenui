@@ -119,10 +119,6 @@ func (l *Layer) ActiveFor(x int, y int, eventType LayerEventType) bool {
 			continue
 		}
 
-		if eventType != LayerEventTypeAny && layer.EventTypes&eventType != eventType {
-			continue
-		}
-
 		if layer != l {
 			if layer.BlockLower {
 				return false

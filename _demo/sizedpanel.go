@@ -17,7 +17,7 @@ func newSizedPanel(w int, h int, opts ...widget.ContainerOpt) *sizedPanel {
 	return &sizedPanel{
 		width:     w,
 		height:    h,
-		container: widget.NewContainer(opts...),
+		container: widget.NewContainer("sized panel", opts...),
 	}
 }
 
@@ -33,8 +33,8 @@ func (p *sizedPanel) SetLocation(rect image.Rectangle) {
 	p.container.SetLocation(rect)
 }
 
-func (p *sizedPanel) Render(screen *ebiten.Image, def widget.DeferredRenderFunc) {
-	p.container.Render(screen, def)
+func (p *sizedPanel) Render(screen *ebiten.Image, def widget.DeferredRenderFunc, debugMode widget.DebugMode) {
+	p.container.Render(screen, def, debugMode)
 }
 
 func (p *sizedPanel) Container() *widget.Container {

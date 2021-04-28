@@ -81,12 +81,12 @@ func (c *Caret) PreferredSize() (int, int) {
 	return c.Width, c.height
 }
 
-func (c *Caret) Render(screen *ebiten.Image, def DeferredRenderFunc) {
+func (c *Caret) Render(screen *ebiten.Image, def DeferredRenderFunc, debugMode DebugMode) {
 	c.init.Do()
 
 	c.state = c.state()
 
-	c.widget.Render(screen, def)
+	c.widget.Render(screen, def, debugMode)
 
 	if !c.visible {
 		return

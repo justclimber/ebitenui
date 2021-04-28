@@ -23,6 +23,7 @@ func (t *toolTipContents) Create(w widget.HasWidget) widget.ToolTipWidget {
 	}
 
 	c := widget.NewContainer(
+		"tooltip",
 		widget.ContainerOpts.BackgroundImage(t.res.toolTip.background),
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Direction(widget.DirectionVertical),

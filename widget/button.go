@@ -117,6 +117,7 @@ func (o ButtonOptions) TextSimpleLeft(label string, face font.Face, color *Butto
 	return func(b *Button) {
 		b.init.Append(func() {
 			b.container = NewContainer(
+				"text simple left",
 				ContainerOpts.Layout(NewAnchorLayout(AnchorLayoutOpts.Padding(padding))),
 				ContainerOpts.AutoDisableChildren(),
 			)
@@ -141,6 +142,7 @@ func (o ButtonOptions) Text(label string, face font.Face, color *ButtonTextColor
 	return func(b *Button) {
 		b.init.Append(func() {
 			b.container = NewContainer(
+				"button text",
 				ContainerOpts.Layout(NewAnchorLayout(AnchorLayoutOpts.Padding(b.textPadding))),
 				ContainerOpts.AutoDisableChildren(),
 			)
@@ -166,11 +168,13 @@ func (o ButtonOptions) TextAndImage(label string, face font.Face, image *ButtonI
 	return func(b *Button) {
 		b.init.Append(func() {
 			b.container = NewContainer(
+				"button b",
 				ContainerOpts.Layout(NewAnchorLayout(AnchorLayoutOpts.Padding(b.textPadding))),
 				ContainerOpts.AutoDisableChildren(),
 			)
 
 			c := NewContainer(
+				"button c",
 				ContainerOpts.WidgetOpts(WidgetOpts.LayoutData(AnchorLayoutData{
 					HorizontalPosition: AnchorLayoutPositionCenter,
 					VerticalPosition:   AnchorLayoutPositionCenter,
@@ -219,6 +223,7 @@ func (o ButtonOptions) withGraphic(opt GraphicOpt) ButtonOpt {
 	return func(b *Button) {
 		b.init.Append(func() {
 			b.container = NewContainer(
+				"with graphic",
 				ContainerOpts.Layout(NewAnchorLayout(AnchorLayoutOpts.Padding(b.graphicPadding))),
 				ContainerOpts.AutoDisableChildren())
 
@@ -329,7 +334,7 @@ func (b *Button) SetupInputLayer(def input.DeferredSetupInputLayerFunc) {
 	}
 }
 
-func (b *Button) Render(screen *ebiten.Image, def DeferredRenderFunc) {
+func (b *Button) Render(screen *ebiten.Image, def DeferredRenderFunc, debugMode DebugMode) {
 	b.init.Do()
 
 	if b.container != nil {
@@ -338,7 +343,7 @@ func (b *Button) Render(screen *ebiten.Image, def DeferredRenderFunc) {
 		w.Disabled = b.widget.Disabled
 	}
 
-	b.widget.Render(screen, def)
+	b.widget.Render(screen, def, debugMode)
 
 	b.draw(screen)
 
@@ -361,7 +366,7 @@ func (b *Button) Render(screen *ebiten.Image, def DeferredRenderFunc) {
 	}
 
 	if b.container != nil {
-		b.container.Render(screen, def)
+		b.container.Render(screen, def, debugMode)
 	}
 }
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
 	"log"
 	"sort"
 
@@ -29,6 +30,7 @@ type pageContainer struct {
 func main() {
 	ebiten.SetWindowSize(900, 800)
 	ebiten.SetWindowTitle("Ebiten UI Demo")
+	ebiten.SetVsyncEnabled(false)
 	ebiten.SetWindowResizable(true)
 	ebiten.SetScreenClearedEveryFrame(false)
 
@@ -60,6 +62,7 @@ func createUI() (*ebitenui.UI, func(), error) {
 	}
 
 	rootContainer := widget.NewContainer(
+		"root",
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Columns(1),
 			widget.GridLayoutOpts.Stretch([]bool{true}, []bool{false, true, false}),
@@ -92,7 +95,7 @@ func createUI() (*ebitenui.UI, func(), error) {
 		return ui
 	}))
 
-	urlContainer := widget.NewContainer(widget.ContainerOpts.Layout(widget.NewRowLayout(
+	urlContainer := widget.NewContainer("url", widget.ContainerOpts.Layout(widget.NewRowLayout(
 		widget.RowLayoutOpts.Padding(widget.Insets{
 			Left:  25,
 			Right: 25,
@@ -118,6 +121,7 @@ func createUI() (*ebitenui.UI, func(), error) {
 
 func headerContainer(res *uiResources) widget.PreferredSizeLocateableWidget {
 	c := widget.NewContainer(
+		"header wrapper",
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
 			widget.RowLayoutOpts.Spacing(15))),
@@ -130,6 +134,7 @@ func headerContainer(res *uiResources) widget.PreferredSizeLocateableWidget {
 	))
 
 	c2 := widget.NewContainer(
+		"second row in header",
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
 			widget.RowLayoutOpts.Padding(widget.Insets{
@@ -147,7 +152,7 @@ func headerContainer(res *uiResources) widget.PreferredSizeLocateableWidget {
 }
 
 func header(label string, res *uiResources, opts ...widget.ContainerOpt) widget.PreferredSizeLocateableWidget {
-	c := widget.NewContainer(append(opts, []widget.ContainerOpt{
+	c := widget.NewContainer("header with bg", append(opts, []widget.ContainerOpt{
 		widget.ContainerOpts.BackgroundImage(res.header.background),
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout(widget.AnchorLayoutOpts.Padding(res.header.padding))),
 	}...)...)
@@ -168,6 +173,7 @@ func demoContainer(res *uiResources, toolTips *toolTipContents, toolTip *widget.
 	ui func() *ebitenui.UI) widget.PreferredSizeLocateableWidget {
 
 	demoContainer := widget.NewContainer(
+		"demo",
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
 			widget.GridLayoutOpts.Padding(widget.Insets{
 				Left:  25,
@@ -234,6 +240,7 @@ func demoContainer(res *uiResources, toolTips *toolTipContents, toolTip *widget.
 
 func newPageContainer(res *uiResources) *pageContainer {
 	c := widget.NewContainer(
+		"page",
 		widget.ContainerOpts.BackgroundImage(res.panel.image),
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
@@ -284,6 +291,7 @@ func newCheckbox(label string, changedHandler widget.CheckboxChangedHandlerFunc,
 
 func newPageContentContainer() *widget.Container {
 	return widget.NewContainer(
+		"page content",
 		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
 			StretchHorizontal: true,
 		})),
@@ -345,6 +353,7 @@ func newList(entries []interface{}, res *uiResources, widgetOpts ...widget.Widge
 
 func newSeparator(res *uiResources, ld interface{}) widget.PreferredSizeLocateableWidget {
 	c := widget.NewContainer(
+		"separator",
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
 			widget.RowLayoutOpts.Padding(widget.Insets{
@@ -369,6 +378,15 @@ func (g *game) Layout(outsideWidth int, outsideHeight int) (int, int) {
 }
 
 func (g *game) Update() error {
+	if inpututil.IsKeyJustPressed(ebiten.KeyF1) {
+		g.ui.SetDebugMode(widget.DebugModeNone)
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyF2) {
+		g.ui.SetDebugMode(widget.DebugModeBorderOnMouseOver)
+	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyF3) {
+		g.ui.SetDebugMode(widget.DebugModeBorderAlwaysShow)
+	}
 	g.ui.Update()
 	return nil
 }

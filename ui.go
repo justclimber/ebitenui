@@ -1,6 +1,8 @@
 package ebitenui
 
 import (
+	"fmt"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"image"
 
 	"github.com/blizzy78/ebitenui/event"
@@ -29,6 +31,7 @@ type UI struct {
 	renderers     []widget.Renderer
 	windows       []*widget.Window
 	nextWindowsId int
+	debugMode     widget.DebugMode
 }
 
 // RemoveWindowFunc is a function to remove a Window from rendering.
@@ -63,6 +66,22 @@ func (u *UI) Draw(screen *ebiten.Image) {
 	u.setupInputLayers()
 	u.Container.SetLocation(rect)
 	u.render(screen)
+	if u.debugMode == widget.DebugModeBorderAlwaysShow {
+		u.drawDebug(screen)
+	}
+}
+
+// SetDebugMode set debug mode for u to debugMode.
+func (u *UI) SetDebugMode(debugMode widget.DebugMode) {
+	u.debugMode = debugMode
+}
+
+func (u *UI) drawDebug(screen *ebiten.Image) {
+	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS: %0.2f, FPS: %0.2f", ebiten.CurrentTPS(), ebiten.CurrentFPS()))
+	u.Container.RenderWidgetSizeDebug(screen)
+	for _, w := range u.windows {
+		w.Container().RenderWidgetSizeDebug(screen)
+	}
 }
 
 func (u *UI) handleFocus() {
@@ -170,7 +189,7 @@ func (u *UI) render(screen *ebiten.Image) {
 	}
 
 	// TODO: RenderWithDeferred should reside in "internal" subpackage
-	widget.RenderWithDeferred(screen, u.renderers)
+	widget.RenderWithDeferred(screen, u.renderers, u.debugMode)
 }
 
 // AddWindow adds window w to u for rendering. It returns a function to remove w from u.

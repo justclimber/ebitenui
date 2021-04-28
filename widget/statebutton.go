@@ -86,12 +86,12 @@ func (s *StateButton) SetupInputLayer(def input.DeferredSetupInputLayerFunc) {
 	s.button.SetupInputLayer(def)
 }
 
-func (s *StateButton) Render(screen *ebiten.Image, def DeferredRenderFunc) {
+func (s *StateButton) Render(screen *ebiten.Image, def DeferredRenderFunc, debugMode DebugMode) {
 	s.init.Do()
 
 	s.button.Image = s.images[s.State]
 
-	s.button.Render(screen, def)
+	s.button.Render(screen, def, debugMode)
 }
 
 func (s *StateButton) createWidget() {

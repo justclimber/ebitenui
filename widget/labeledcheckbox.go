@@ -79,9 +79,9 @@ func (l *LabeledCheckbox) SetupInputLayer(def input.DeferredSetupInputLayerFunc)
 	l.checkbox.SetupInputLayer(def)
 }
 
-func (l *LabeledCheckbox) Render(screen *ebiten.Image, def DeferredRenderFunc) {
+func (l *LabeledCheckbox) Render(screen *ebiten.Image, def DeferredRenderFunc, debugMode DebugMode) {
 	l.init.Do()
-	l.container.Render(screen, def)
+	l.container.Render(screen, def, debugMode)
 }
 
 func (l *LabeledCheckbox) Checkbox() *Checkbox {
@@ -94,6 +94,7 @@ func (l *LabeledCheckbox) Label() *Label {
 
 func (l *LabeledCheckbox) createWidget() {
 	l.container = NewContainer(
+		"labeled checkbox",
 		ContainerOpts.Layout(NewRowLayout(
 			RowLayoutOpts.Spacing(l.spacing))),
 		ContainerOpts.AutoDisableChildren(),

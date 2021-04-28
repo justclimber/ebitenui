@@ -82,6 +82,7 @@ func listPage(res *uiResources) *page {
 	c := newPageContentContainer()
 
 	listsContainer := widget.NewContainer(
+		"lists",
 		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 			Stretch: true,
 		})),
@@ -98,6 +99,7 @@ func listPage(res *uiResources) *page {
 	listsContainer.AddChild(list1)
 
 	buttonsContainer := widget.NewContainer(
+		"buttons",
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
 			widget.RowLayoutOpts.Spacing(10),
@@ -184,6 +186,7 @@ func tabBookPage(res *uiResources) *page {
 
 	for i := 0; i < 4; i++ {
 		tc := widget.NewContainer(
+			"tab book page",
 			widget.ContainerOpts.Layout(widget.NewRowLayout(
 				widget.RowLayoutOpts.Direction(widget.DirectionVertical),
 				widget.RowLayoutOpts.Spacing(10))),
@@ -232,6 +235,7 @@ func gridLayoutPage(res *uiResources) *page {
 	c := newPageContentContainer()
 
 	bc := widget.NewContainer(
+		"bc",
 		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 			Stretch: true,
 		})),
@@ -266,6 +270,7 @@ func rowLayoutPage(res *uiResources) *page {
 		widget.TextOpts.Text("Horizontal", res.text.face, res.text.idleColor)))
 
 	bc := widget.NewContainer(
+		"rowLayoutPage",
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Spacing(5))))
 	c.AddChild(bc)
@@ -282,6 +287,7 @@ func rowLayoutPage(res *uiResources) *page {
 		widget.TextOpts.Text("Vertical", res.text.face, res.text.idleColor)))
 
 	bc = widget.NewContainer(
+		"rowLayoutPage",
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
 			widget.RowLayoutOpts.Spacing(5))))
@@ -315,6 +321,7 @@ func sliderPage(res *uiResources) *page {
 		ps := ps
 
 		sc := widget.NewContainer(
+			"slider",
 			widget.ContainerOpts.Layout(widget.NewRowLayout(
 				widget.RowLayoutOpts.Spacing(10))),
 			widget.ContainerOpts.AutoDisableChildren(),
@@ -355,7 +362,7 @@ func sliderPage(res *uiResources) *page {
 
 	c.AddChild(newCheckbox("Disabled", func(args *widget.CheckboxChangedEventArgs) {
 		for _, s := range sliders {
-			s.GetWidget().Parent().Disabled = args.State == widget.CheckboxChecked
+			s.GetWidget().Parent().GetWidget().Disabled = args.State == widget.CheckboxChecked
 		}
 	}, res))
 
@@ -372,6 +379,7 @@ func toolTipPage(res *uiResources, toolTips *toolTipContents, toolTip *widget.To
 		widget.TextOpts.Text("Hover over these buttons to see their tool tips.", res.text.face, res.text.idleColor)))
 
 	bc := widget.NewContainer(
+		"tooltip",
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Spacing(15))))
 	c.AddChild(bc)
@@ -423,6 +431,7 @@ func dragAndDropPage(res *uiResources, dnd *widget.DragAndDrop, drag *dragConten
 	c := newPageContentContainer()
 
 	dndContainer := widget.NewContainer(
+		"dnd",
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Spacing(30),
 		)),
@@ -574,6 +583,7 @@ func openWindow(res *uiResources, ui func() *ebitenui.UI) {
 	var rw ebitenui.RemoveWindowFunc
 
 	c := widget.NewContainer(
+		"window1",
 		widget.ContainerOpts.BackgroundImage(res.panel.image),
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
@@ -583,7 +593,7 @@ func openWindow(res *uiResources, ui func() *ebitenui.UI) {
 	)
 
 	c.AddChild(widget.NewText(
-		widget.TextOpts.Text("Modal Window", res.text.bigTitleFace, res.text.idleColor),
+		widget.TextOpts.Text("Window", res.text.bigTitleFace, res.text.idleColor),
 	))
 
 	c.AddChild(widget.NewText(
@@ -591,6 +601,7 @@ func openWindow(res *uiResources, ui func() *ebitenui.UI) {
 	))
 
 	bc := widget.NewContainer(
+		"internal window1 row",
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Spacing(15),
 		)),
@@ -618,7 +629,7 @@ func openWindow(res *uiResources, ui func() *ebitenui.UI) {
 	bc.AddChild(cb)
 
 	hc := widget.NewContainer(
-		//"window1 movable",
+		"window1 movable",
 		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 			Stretch: true,
 		})),
@@ -637,7 +648,7 @@ func openWindow(res *uiResources, ui func() *ebitenui.UI) {
 	))
 
 	w := widget.NewWindow(
-		widget.WindowOpts.Modal(),
+		widget.WindowOpts.Movable(hc),
 		widget.WindowOpts.Contents(c),
 	)
 
@@ -653,6 +664,7 @@ func openWindow2(res *uiResources, ui func() *ebitenui.UI) {
 	var rw ebitenui.RemoveWindowFunc
 
 	c := widget.NewContainer(
+		"window2",
 		widget.ContainerOpts.BackgroundImage(res.panel.image),
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
@@ -709,6 +721,7 @@ func anchorLayoutPage(res *uiResources) *page {
 	}))
 
 	posC := widget.NewContainer(
+		"posC",
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Spacing(50),
 		)),
@@ -716,6 +729,7 @@ func anchorLayoutPage(res *uiResources) *page {
 	c.AddChild(posC)
 
 	hPosC := widget.NewContainer(
+		"hPosC",
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
 			widget.RowLayoutOpts.Spacing(10),
@@ -745,6 +759,7 @@ func anchorLayoutPage(res *uiResources) *page {
 	)
 
 	vPosC := widget.NewContainer(
+		"vPosC",
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
 			widget.RowLayoutOpts.Spacing(10),
@@ -773,6 +788,7 @@ func anchorLayoutPage(res *uiResources) *page {
 	)
 
 	stretchC := widget.NewContainer(
+		"stretchC",
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
 			widget.RowLayoutOpts.Spacing(10),

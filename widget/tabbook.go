@@ -160,7 +160,7 @@ func (t *TabBook) SetupInputLayer(def input.DeferredSetupInputLayerFunc) {
 	t.container.SetupInputLayer(def)
 }
 
-func (t *TabBook) Render(screen *ebiten.Image, def DeferredRenderFunc) {
+func (t *TabBook) Render(screen *ebiten.Image, def DeferredRenderFunc, debugMode DebugMode) {
 	t.init.Do()
 
 	d := t.container.GetWidget().Disabled
@@ -168,11 +168,11 @@ func (t *TabBook) Render(screen *ebiten.Image, def DeferredRenderFunc) {
 		b.GetWidget().Disabled = d || tab.Disabled
 	}
 
-	t.container.Render(screen, def)
+	t.container.Render(screen, def, debugMode)
 }
 
 func (t *TabBook) createWidget() {
-	t.container = NewContainer(append(t.containerOpts, []ContainerOpt{
+	t.container = NewContainer("tab book", append(t.containerOpts, []ContainerOpt{
 		ContainerOpts.Layout(NewGridLayout(
 			GridLayoutOpts.Columns(1),
 			GridLayoutOpts.Stretch([]bool{true}, []bool{false, true}),
@@ -182,6 +182,7 @@ func (t *TabBook) createWidget() {
 	t.containerOpts = nil
 
 	buttonsContainer := NewContainer(
+		"tab book buttons",
 		ContainerOpts.Layout(NewRowLayout(
 			RowLayoutOpts.Spacing(t.buttonSpacing))))
 	t.container.AddChild(buttonsContainer)

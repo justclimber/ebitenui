@@ -206,7 +206,7 @@ func (l *List) SetupInputLayer(def input.DeferredSetupInputLayerFunc) {
 	l.container.SetupInputLayer(def)
 }
 
-func (l *List) Render(screen *ebiten.Image, def DeferredRenderFunc) {
+func (l *List) Render(screen *ebiten.Image, def DeferredRenderFunc, debugMode DebugMode) {
 	l.init.Do()
 
 	d := l.container.GetWidget().Disabled
@@ -220,7 +220,7 @@ func (l *List) Render(screen *ebiten.Image, def DeferredRenderFunc) {
 
 	l.scrollContainer.GetWidget().Disabled = d
 
-	l.container.Render(screen, def)
+	l.container.Render(screen, def, debugMode)
 }
 
 func (l *List) createWidget() {
@@ -232,6 +232,7 @@ func (l *List) createWidget() {
 	}
 
 	l.container = NewContainer(
+		"list",
 		append(l.containerOpts,
 			ContainerOpts.Layout(NewGridLayout(
 				GridLayoutOpts.Columns(cols),
@@ -240,6 +241,7 @@ func (l *List) createWidget() {
 	l.containerOpts = nil
 
 	content := NewContainer(
+		"list content",
 		ContainerOpts.Layout(NewRowLayout(
 			RowLayoutOpts.Direction(DirectionVertical))),
 		ContainerOpts.AutoDisableChildren())

@@ -212,7 +212,7 @@ func (t *TextInput) PreferredSize() (int, int) {
 	return 50, h + t.padding.Top + t.padding.Bottom
 }
 
-func (t *TextInput) Render(screen *ebiten.Image, def DeferredRenderFunc) {
+func (t *TextInput) Render(screen *ebiten.Image, def DeferredRenderFunc, debugMode DebugMode) {
 	t.init.Do()
 
 	t.text.GetWidget().Disabled = t.widget.Disabled
@@ -246,10 +246,10 @@ func (t *TextInput) Render(screen *ebiten.Image, def DeferredRenderFunc) {
 		}
 	}
 
-	t.widget.Render(screen, def)
+	t.widget.Render(screen, def, debugMode)
 
 	t.renderImage(screen)
-	t.renderTextAndCaret(screen, def)
+	t.renderTextAndCaret(screen, def, debugMode)
 }
 
 func (t *TextInput) idleState(newKeyOrCommand bool) textInputState {
@@ -429,10 +429,10 @@ func (t *TextInput) renderImage(screen *ebiten.Image) {
 	}
 }
 
-func (t *TextInput) renderTextAndCaret(screen *ebiten.Image, def DeferredRenderFunc) {
+func (t *TextInput) renderTextAndCaret(screen *ebiten.Image, def DeferredRenderFunc, debugMode DebugMode) {
 	t.renderBuf.Draw(screen,
 		func(buf *ebiten.Image) {
-			t.drawTextAndCaret(buf, def)
+			t.drawTextAndCaret(buf, def, debugMode)
 		},
 		func(buf *ebiten.Image) {
 			rect := t.widget.Rect
@@ -444,7 +444,7 @@ func (t *TextInput) renderTextAndCaret(screen *ebiten.Image, def DeferredRenderF
 		})
 }
 
-func (t *TextInput) drawTextAndCaret(screen *ebiten.Image, def DeferredRenderFunc) {
+func (t *TextInput) drawTextAndCaret(screen *ebiten.Image, def DeferredRenderFunc, debugMode DebugMode) {
 	rect := t.widget.Rect
 	tr := rect
 	tr = tr.Add(img.Point{t.padding.Left, t.padding.Top})
@@ -483,7 +483,7 @@ func (t *TextInput) drawTextAndCaret(screen *ebiten.Image, def DeferredRenderFun
 	} else {
 		t.text.Color = t.color.Idle
 	}
-	t.text.Render(screen, def)
+	t.text.Render(screen, def, debugMode)
 
 	if t.focused {
 		if t.widget.Disabled {
@@ -495,7 +495,7 @@ func (t *TextInput) drawTextAndCaret(screen *ebiten.Image, def DeferredRenderFun
 		tr = tr.Add(img.Point{cx, 0})
 		t.caret.SetLocation(tr)
 
-		t.caret.Render(screen, def)
+		t.caret.Render(screen, def, debugMode)
 	}
 }
 

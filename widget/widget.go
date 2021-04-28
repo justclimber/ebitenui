@@ -1,10 +1,12 @@
 package widget
 
 import (
-	"image"
-
 	"github.com/blizzy78/ebitenui/event"
 	"github.com/blizzy78/ebitenui/input"
+	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"golang.org/x/image/colornames"
+	"image"
+	"image/color"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )
@@ -49,7 +51,8 @@ type Widget struct {
 
 	FocusEvent *event.Event
 
-	parent                     *Widget
+	parent                     PreferredSizeLocateableWidget
+	mouseIn                    bool
 	lastUpdateCursorEntered    bool
 	lastUpdateMouseLeftPressed bool
 	mouseLeftPressedInside     bool
@@ -64,19 +67,32 @@ type HasWidget interface {
 	GetWidget() *Widget
 }
 
+// DebugDrawer must be implemented by concrete container to render debug widgets (own and children) size
+type DebugDrawer interface {
+	RenderWidgetSizeDebug(screen *ebiten.Image)
+}
+
 // Renderer may be implemented by concrete widget types that can render onto the screen.
 type Renderer interface {
 	// Render renders the widget onto screen. def may be called to defer additional rendering.
-	Render(screen *ebiten.Image, def DeferredRenderFunc)
+	Render(screen *ebiten.Image, def DeferredRenderFunc, debugMode DebugMode)
 }
 
 type Focuser interface {
 	Focus(focused bool)
 }
 
+type DebugMode int8
+
+const (
+	DebugModeNone = DebugMode(iota)
+	DebugModeBorderOnMouseOver
+	DebugModeBorderAlwaysShow
+)
+
 // RenderFunc is a function that renders a widget onto screen. def may be called to defer
 // additional rendering.
-type RenderFunc func(screen *ebiten.Image, def DeferredRenderFunc)
+type RenderFunc func(screen *ebiten.Image, def DeferredRenderFunc, debugMode DebugMode)
 
 // DeferredRenderFunc is a function that stores r for deferred execution.
 type DeferredRenderFunc func(r RenderFunc)
@@ -246,7 +262,7 @@ func (w *Widget) EffectiveInputLayer() *input.Layer {
 			return &input.DefaultLayer
 		}
 
-		return w.parent.EffectiveInputLayer()
+		return w.parent.GetWidget().EffectiveInputLayer()
 	}
 
 	return l
@@ -255,8 +271,38 @@ func (w *Widget) EffectiveInputLayer() *input.Layer {
 // Render renders w onto screen. Since Widget is only an abstraction, it does not actually draw
 // anything, but it is still responsible for firing events. Concrete widget implementations should
 // always call this method first before rendering themselves.
-func (w *Widget) Render(screen *ebiten.Image, def DeferredRenderFunc) {
+func (w *Widget) Render(screen *ebiten.Image, def DeferredRenderFunc, debugMode DebugMode) {
 	w.fireEvents()
+
+	if debugMode == DebugModeBorderOnMouseOver && w.mouseIn {
+		w.RenderWidgetRectDebug(screen)
+		p := w.Parent()
+		if c, ok := p.(*Container); ok {
+			r := c.GetWidget().Rect
+			drawAroundRect(screen, r, colornames.Green)
+			ebitenutil.DebugPrintAt(screen, c.DebugLabel, r.Min.X, r.Min.Y-18)
+		}
+	}
+}
+
+func (w *Widget) RenderInputLayerDebug(screen *ebiten.Image) {
+	if w.inputLayer == nil || w.inputLayer.FullScreen {
+		return
+	}
+	r := w.inputLayer.RectFunc()
+	ebitenutil.DebugPrintAt(screen, w.inputLayer.DebugLabel, r.Min.X, r.Min.Y-18)
+	drawAroundRect(screen, r, colornames.Aqua)
+}
+
+func (w *Widget) RenderWidgetRectDebug(screen *ebiten.Image) {
+	drawAroundRect(screen, w.Rect, colornames.Aquamarine)
+}
+
+func drawAroundRect(screen *ebiten.Image, r image.Rectangle, c color.Color) {
+	ebitenutil.DrawLine(screen, float64(r.Min.X-1), float64(r.Min.Y-1), float64(r.Max.X+1), float64(r.Min.Y-1), c)
+	ebitenutil.DrawLine(screen, float64(r.Min.X-1), float64(r.Min.Y-1), float64(r.Min.X-1), float64(r.Max.Y+1), c)
+	ebitenutil.DrawLine(screen, float64(r.Min.X-1), float64(r.Max.Y+1), float64(r.Max.X+1), float64(r.Max.Y+1), c)
+	ebitenutil.DrawLine(screen, float64(r.Max.X+1), float64(r.Min.Y-1), float64(r.Max.X+1), float64(r.Max.Y+1), c)
 }
 
 func (w *Widget) fireEvents() {
@@ -265,7 +311,9 @@ func (w *Widget) fireEvents() {
 	layer := w.EffectiveInputLayer()
 	inside := p.In(w.Rect)
 
+	// @todo caching?
 	entered := inside && layer.ActiveFor(x, y, input.LayerEventTypeAny)
+	w.mouseIn = entered
 	if entered != w.lastUpdateCursorEntered {
 		if entered {
 			w.CursorEnterEvent.Fire(&WidgetCursorEnterEventArgs{
@@ -327,7 +375,7 @@ func (w *Widget) ElevateToNewInputLayer(l *input.Layer) {
 	w.inputLayer = l
 }
 
-func (w *Widget) Parent() *Widget {
+func (w *Widget) Parent() PreferredSizeLocateableWidget {
 	return w.parent
 }
 
@@ -339,15 +387,15 @@ func WidgetFireFocusEvent(w *Widget, focused bool) { //nolint:golint
 }
 
 // RenderWithDeferred renders r to screen. This function should not be called directly.
-func RenderWithDeferred(screen *ebiten.Image, rs []Renderer) {
+func RenderWithDeferred(screen *ebiten.Image, rs []Renderer, debugMode DebugMode) {
 	for _, r := range rs {
 		appendToDeferredRenderQueue(r.Render)
 	}
 
-	renderDeferredRenderQueue(screen)
+	renderDeferredRenderQueue(screen, debugMode)
 }
 
-func renderDeferredRenderQueue(screen *ebiten.Image) {
+func renderDeferredRenderQueue(screen *ebiten.Image, debugMode DebugMode) {
 	defer func(d []RenderFunc) {
 		deferredRenders = d[:0]
 	}(deferredRenders)
@@ -356,7 +404,7 @@ func renderDeferredRenderQueue(screen *ebiten.Image) {
 		r := deferredRenders[0]
 		deferredRenders = deferredRenders[1:]
 
-		r(screen, appendToDeferredRenderQueue)
+		r(screen, appendToDeferredRenderQueue, debugMode)
 	}
 }
 

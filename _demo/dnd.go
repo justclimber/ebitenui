@@ -19,6 +19,7 @@ func (d *dragContents) Create(srcWidget widget.HasWidget, srcX int, srcY int) (w
 	}
 
 	c := widget.NewContainer(
+		"dnd",
 		widget.ContainerOpts.BackgroundImage(d.res.toolTip.background),
 		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.RowLayoutData{
 			Stretch: true,
@@ -62,7 +63,7 @@ func (d *dragContents) isSource(w *widget.Widget) bool {
 		return false
 	}
 
-	return d.isSource(p)
+	return d.isSource(p.GetWidget())
 }
 
 func (d *dragContents) isTarget(w *widget.Widget) bool {
@@ -77,5 +78,5 @@ func (d *dragContents) isTarget(w *widget.Widget) bool {
 		return false
 	}
 
-	return d.isTarget(p)
+	return d.isTarget(p.GetWidget())
 }

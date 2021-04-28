@@ -126,17 +126,17 @@ func (s *ScrollContainer) SetupInputLayer(def input.DeferredSetupInputLayerFunc)
 	}
 }
 
-func (s *ScrollContainer) Render(screen *ebiten.Image, def DeferredRenderFunc) {
+func (s *ScrollContainer) Render(screen *ebiten.Image, def DeferredRenderFunc, debugMode DebugMode) {
 	s.init.Do()
 
 	s.clampScroll()
 	s.content.GetWidget().Disabled = s.widget.Disabled
 
-	s.widget.Render(screen, def)
+	s.widget.Render(screen, def, debugMode)
 
 	s.draw(screen)
 
-	s.renderContent(screen, def)
+	s.renderContent(screen, def, debugMode)
 }
 
 func (s *ScrollContainer) draw(screen *ebiten.Image) {
@@ -161,7 +161,7 @@ func (s *ScrollContainer) drawImageOptions(opts *ebiten.DrawImageOptions) {
 	}
 }
 
-func (s *ScrollContainer) renderContent(screen *ebiten.Image, def DeferredRenderFunc) {
+func (s *ScrollContainer) renderContent(screen *ebiten.Image, def DeferredRenderFunc, debugMode DebugMode) {
 	if s.content == nil {
 		return
 	}
@@ -199,7 +199,7 @@ func (s *ScrollContainer) renderContent(screen *ebiten.Image, def DeferredRender
 
 	s.renderBuf.Draw(screen,
 		func(buf *ebiten.Image) {
-			r.Render(buf, def)
+			r.Render(buf, def, debugMode)
 		},
 		func(buf *ebiten.Image) {
 			s.image.Mask.Draw(buf, s.widget.Rect.Dx()-s.padding.Dx(), s.widget.Rect.Dy()-s.padding.Dy(), func(opts *ebiten.DrawImageOptions) {

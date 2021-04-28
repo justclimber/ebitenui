@@ -87,7 +87,7 @@ func (o ToolTipOptions) Delay(d time.Duration) ToolTipOpt {
 	}
 }
 
-func (t *ToolTip) Render(screen *ebiten.Image, def DeferredRenderFunc) {
+func (t *ToolTip) Render(screen *ebiten.Image, def DeferredRenderFunc, debugMode DebugMode) {
 	for {
 		newState, rerun := t.state(screen, def)
 		if newState != nil {
@@ -189,7 +189,7 @@ func (t *ToolTip) showingState(srcWidget HasWidget, srcX int, srcY int, tipWidge
 		if rl, ok := tipWidget.(Relayoutable); ok {
 			rl.RequestRelayout()
 		}
-		tipWidget.Render(screen, def)
+		tipWidget.Render(screen, def, DebugModeNone)
 
 		return t.showingState(srcWidget, srcX, srcY, tipWidget), false
 	}
