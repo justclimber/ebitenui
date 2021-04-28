@@ -111,6 +111,10 @@ func (l *Layer) ActiveFor(x int, y int, eventType LayerEventType) bool {
 	for i := len(layers) - 1; i >= 0; i-- {
 		layer := layers[i]
 
+		if eventType != LayerEventTypeAny && layer.EventTypes&eventType != eventType {
+			continue
+		}
+
 		if !layer.contains(x, y) {
 			continue
 		}
