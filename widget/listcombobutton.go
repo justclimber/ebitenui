@@ -94,6 +94,11 @@ func (l *ListComboButton) PreferredSize() (int, int) {
 	return l.button.PreferredSize()
 }
 
+func (l *ListComboButton) RequestRelayout() {
+	l.init.Do()
+	l.button.RequestRelayout()
+}
+
 func (l *ListComboButton) SetLocation(rect image.Rectangle) {
 	l.init.Do()
 	l.button.SetLocation(rect)

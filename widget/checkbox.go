@@ -100,6 +100,11 @@ func (c *Checkbox) PreferredSize() (int, int) {
 	return c.button.PreferredSize()
 }
 
+func (c *Checkbox) RequestRelayout() {
+	c.init.Do()
+	c.button.RequestRelayout()
+}
+
 func (c *Checkbox) SetLocation(rect image.Rectangle) {
 	c.init.Do()
 	c.button.SetLocation(rect)

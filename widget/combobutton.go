@@ -73,6 +73,11 @@ func (c *ComboButton) PreferredSize() (int, int) {
 	return c.button.PreferredSize()
 }
 
+func (c *ComboButton) RequestRelayout() {
+	c.init.Do()
+	c.button.RequestRelayout()
+}
+
 func (c *ComboButton) SetLabel(l string) {
 	c.init.Do()
 	c.button.Text().Label = l

@@ -95,6 +95,11 @@ func (s *SelectComboButton) PreferredSize() (int, int) {
 	return s.button.PreferredSize()
 }
 
+func (s *SelectComboButton) RequestRelayout() {
+	s.init.Do()
+	s.button.RequestRelayout()
+}
+
 func (s *SelectComboButton) SetLabel(l string) {
 	s.init.Do()
 	s.button.SetLabel(l)
