@@ -42,14 +42,14 @@ func NewFlipBook(opts ...FlipBookOpt) *FlipBook {
 	return f
 }
 
-// WithContainerOpts configures a FlipBook with opts.
+// ContainerOpts configures a FlipBook with opts.
 func (o FlipBookOptions) ContainerOpts(opts ...ContainerOpt) FlipBookOpt {
 	return func(f *FlipBook) {
 		f.containerOpts = append(f.containerOpts, opts...)
 	}
 }
 
-// WithPadding configures a FlipBook with padding i.
+// Padding  configures a FlipBook with padding i.
 func (o FlipBookOptions) Padding(i Insets) FlipBookOpt {
 	return func(f *FlipBook) {
 		f.anchorLayoutOpts = append(f.anchorLayoutOpts, AnchorLayoutOpts.Padding(i))
