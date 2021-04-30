@@ -29,6 +29,10 @@ func (p *sizedPanel) PreferredSize() (int, int) {
 	return p.width, p.height
 }
 
+func (p *sizedPanel) RequestRelayout() {
+	p.container.RequestRelayout()
+}
+
 func (p *sizedPanel) SetLocation(rect image.Rectangle) {
 	p.container.SetLocation(rect)
 }
