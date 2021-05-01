@@ -121,6 +121,7 @@ func (w *Window) SetupInputLayer(def input.DeferredSetupInputLayerFunc) {
 			},
 		})
 	}
+	w.container.SetupInputLayer(def)
 }
 
 func (w *Window) Render(screen *ebiten.Image, def DeferredRenderFunc, debugMode DebugMode) {
