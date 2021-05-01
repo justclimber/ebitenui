@@ -8,9 +8,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/blizzy78/ebitenui/event"
-	"github.com/blizzy78/ebitenui/image"
-	"github.com/blizzy78/ebitenui/input"
+	"github.com/justclimber/ebitenui/event"
+	"github.com/justclimber/ebitenui/image"
+	"github.com/justclimber/ebitenui/input"
 	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/font"
 )

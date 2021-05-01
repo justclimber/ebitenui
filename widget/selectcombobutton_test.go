@@ -4,7 +4,7 @@ import (
 	"image/color"
 	"testing"
 
-	"github.com/blizzy78/ebitenui/event"
+	"github.com/justclimber/ebitenui/event"
 	"github.com/matryer/is"
 )
 

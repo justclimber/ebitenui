@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/blizzy78/ebitenui"
-	eimage "github.com/blizzy78/ebitenui/image"
-	"github.com/blizzy78/ebitenui/widget"
+	"github.com/justclimber/ebitenui"
+	eimage "github.com/justclimber/ebitenui/image"
+	"github.com/justclimber/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 	"golang.org/x/image/font"
 	"image"

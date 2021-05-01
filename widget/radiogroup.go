@@ -1,6 +1,6 @@
 package widget
 
-import "github.com/blizzy78/ebitenui/event"
+import "github.com/justclimber/ebitenui/event"
 
 type RadioGroup struct {
 	ChangedEvent *event.Event

@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/blizzy78/ebitenui/event"
+	"github.com/justclimber/ebitenui/event"
 	"image"
 	"time"
 
-	"github.com/blizzy78/ebitenui"
-	"github.com/blizzy78/ebitenui/widget"
+	"github.com/justclimber/ebitenui"
+	"github.com/justclimber/ebitenui/widget"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 

@@ -3,7 +3,7 @@ package main
 import (
 	"time"
 
-	"github.com/blizzy78/ebitenui/widget"
+	"github.com/justclimber/ebitenui/widget"
 )
 
 type toolTipContents struct {

@@ -6,7 +6,7 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/blizzy78/ebitenui/input"
+	"github.com/justclimber/ebitenui/input"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 

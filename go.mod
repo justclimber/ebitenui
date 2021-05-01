@@ -1,4 +1,4 @@
-module github.com/blizzy78/ebitenui
+module github.com/justclimber/ebitenui
 
 go 1.16
 

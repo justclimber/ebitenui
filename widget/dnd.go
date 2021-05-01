@@ -4,8 +4,8 @@ import (
 	"image"
 	"math"
 
-	"github.com/blizzy78/ebitenui/event"
-	"github.com/blizzy78/ebitenui/input"
+	"github.com/justclimber/ebitenui/event"
+	"github.com/justclimber/ebitenui/input"
 	"github.com/hajimehoshi/ebiten/v2"
 )
 

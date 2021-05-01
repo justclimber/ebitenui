@@ -5,10 +5,10 @@ import (
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"image"
 
-	"github.com/blizzy78/ebitenui/event"
-	"github.com/blizzy78/ebitenui/input"
-	internalinput "github.com/blizzy78/ebitenui/internal/input"
-	"github.com/blizzy78/ebitenui/widget"
+	"github.com/justclimber/ebitenui/event"
+	"github.com/justclimber/ebitenui/input"
+	internalinput "github.com/justclimber/ebitenui/internal/input"
+	"github.com/justclimber/ebitenui/widget"
 
 	"github.com/hajimehoshi/ebiten/v2"
 )

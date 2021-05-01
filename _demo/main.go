@@ -1,17 +1,17 @@
 package main
 
 import (
-	"github.com/blizzy78/ebitenui/event"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"github.com/justclimber/ebitenui/event"
 	"golang.org/x/image/colornames"
 	"log"
 
 	_ "image/png"
 
-	"github.com/blizzy78/ebitenui"
-	"github.com/blizzy78/ebitenui/image"
-	"github.com/blizzy78/ebitenui/widget"
+	"github.com/justclimber/ebitenui"
+	"github.com/justclimber/ebitenui/image"
+	"github.com/justclimber/ebitenui/widget"
 )
 
 type game struct {
@@ -94,7 +94,7 @@ func createUI() (*ebitenui.UI, func(), error) {
 	rootContainer.AddChild(urlContainer)
 
 	urlContainer.AddChild(widget.NewText(
-		widget.TextOpts.Text("github.com/blizzy78/ebitenui", res.text.smallFace, res.text.disabledColor)))
+		widget.TextOpts.Text("github.com/justclimber/ebitenui", res.text.smallFace, res.text.disabledColor)))
 
 	ui = &ebitenui.UI{
 		Container: rootContainer,

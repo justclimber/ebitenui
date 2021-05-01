@@ -4,7 +4,7 @@ import (
 	"image"
 	"testing"
 
-	"github.com/blizzy78/ebitenui/input"
+	"github.com/justclimber/ebitenui/input"
 
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/matryer/is"
