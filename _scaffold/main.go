@@ -6,12 +6,12 @@ import (
 	"io/ioutil"
 	"log"
 
-	"github.com/justclimber/ebitenui"
-	"github.com/justclimber/ebitenui/image"
-	"github.com/justclimber/ebitenui/widget"
 	"github.com/golang/freetype/truetype"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
+	"github.com/justclimber/ebitenui"
+	"github.com/justclimber/ebitenui/image"
+	"github.com/justclimber/ebitenui/widget"
 	"golang.org/x/image/font"
 )
 
@@ -38,6 +38,7 @@ func main() {
 
 	// construct a new container that serves as the root of the UI hierarchy
 	rootContainer := widget.NewContainer(
+		"root",
 		// the container will use a plain color as its background
 		widget.ContainerOpts.BackgroundImage(image.NewNineSliceColor(color.RGBA{0x13, 0x1a, 0x22, 0xff})),
 
