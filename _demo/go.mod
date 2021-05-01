@@ -1,6 +1,6 @@
 module github.com/blizzy78/ebitenui/_demo
 
-go 1.15
+go 1.16
 
 replace github.com/blizzy78/ebitenui => ../
 
