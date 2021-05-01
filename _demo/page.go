@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/blizzy78/ebitenui/event"
 	"image"
 	"time"
 
@@ -322,8 +323,7 @@ func sliderPage(res *uiResources) *page {
 
 		sc := widget.NewContainer(
 			"slider",
-			widget.ContainerOpts.Layout(widget.NewRowLayout(
-				widget.RowLayoutOpts.Spacing(10))),
+			widget.ContainerOpts.Layout(widget.NewRowLayout(widget.RowLayoutOpts.Spacing(10))),
 			widget.ContainerOpts.AutoDisableChildren(),
 		)
 		c.AddChild(sc)
@@ -427,7 +427,7 @@ func toolTipPage(res *uiResources, toolTips *toolTipContents, toolTip *widget.To
 	}
 }
 
-func dragAndDropPage(res *uiResources, dnd *widget.DragAndDrop, drag *dragContents) *page {
+func dragAndDropPage(res *uiResources) (*page, *dragContents, event.HandlerFunc) {
 	c := newPageContentContainer()
 
 	dndContainer := widget.NewContainer(
@@ -442,7 +442,6 @@ func dragAndDropPage(res *uiResources, dnd *widget.DragAndDrop, drag *dragConten
 		widget.ContainerOpts.BackgroundImage(res.panel.image),
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout(widget.AnchorLayoutOpts.Padding(res.panel.padding))),
 	)
-	drag.addSource(sourcePanel)
 	dndContainer.AddChild(sourcePanel)
 
 	sourcePanel.Container().AddChild(widget.NewText(
@@ -458,7 +457,11 @@ func dragAndDropPage(res *uiResources, dnd *widget.DragAndDrop, drag *dragConten
 		widget.ContainerOpts.BackgroundImage(res.panel.image),
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout(widget.AnchorLayoutOpts.Padding(res.panel.padding))),
 	)
-	drag.addTarget(targetPanel)
+	drag := &dragContents{
+		res: res,
+		sources: []*widget.Widget{sourcePanel.GetWidget()},
+		targets: []*widget.Widget{targetPanel.GetWidget()},
+	}
 	dndContainer.AddChild(targetPanel)
 
 	targetText := widget.NewText(
@@ -472,7 +475,7 @@ func dragAndDropPage(res *uiResources, dnd *widget.DragAndDrop, drag *dragConten
 
 	targetPanel.Container().AddChild(targetText)
 
-	dnd.DroppedEvent.AddHandler(func(args interface{}) {
+	dropHandler := func(args interface{}) {
 		a := args.(*widget.DragAndDropDroppedEventArgs)
 		if !drag.isTarget(a.Target.GetWidget()) {
 			return
@@ -485,12 +488,12 @@ func dragAndDropPage(res *uiResources, dnd *widget.DragAndDrop, drag *dragConten
 			targetText.Label = "Drop\nHere"
 			targetText.Color = res.text.disabledColor
 		})
-	})
+	}
 
 	return &page{
 		title:   "Drag & Drop",
 		content: c,
-	}
+	}, drag, dropHandler
 }
 
 func textInputPage(res *uiResources) *page {

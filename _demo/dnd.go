@@ -43,14 +43,6 @@ func (d *dragContents) Update(target widget.HasWidget, _ int, _ int, _ interface
 	}
 }
 
-func (d *dragContents) addSource(s widget.HasWidget) {
-	d.sources = append(d.sources, s.GetWidget())
-}
-
-func (d *dragContents) addTarget(t widget.HasWidget) {
-	d.targets = append(d.targets, t.GetWidget())
-}
-
 func (d *dragContents) isSource(w *widget.Widget) bool {
 	for _, s := range d.sources {
 		if s == w {

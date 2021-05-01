@@ -1,14 +1,11 @@
 package main
 
 import (
-	"github.com/hajimehoshi/ebiten/v2/inpututil"
-	"log"
-	"sort"
-
-	"golang.org/x/text/collate"
-	"golang.org/x/text/language"
-
+	"github.com/blizzy78/ebitenui/event"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/hajimehoshi/ebiten/v2/inpututil"
+	"golang.org/x/image/colornames"
+	"log"
 
 	_ "image/png"
 
@@ -21,14 +18,8 @@ type game struct {
 	ui *ebitenui.UI
 }
 
-type pageContainer struct {
-	widget    widget.PreferredSizeLocateableWidget
-	titleText *widget.Text
-	flipBook  *widget.FlipBook
-}
-
 func main() {
-	ebiten.SetWindowSize(900, 800)
+	ebiten.SetWindowSize(1300, 800)
 	ebiten.SetWindowTitle("Ebiten UI Demo")
 	ebiten.SetVsyncEnabled(false)
 	ebiten.SetWindowResizable(true)
@@ -57,10 +48,6 @@ func createUI() (*ebitenui.UI, func(), error) {
 		return nil, nil, err
 	}
 
-	drag := &dragContents{
-		res: res,
-	}
-
 	rootContainer := widget.NewContainer(
 		"root",
 		widget.ContainerOpts.Layout(widget.NewGridLayout(
@@ -79,21 +66,24 @@ func createUI() (*ebitenui.UI, func(), error) {
 	}
 
 	toolTip := widget.NewToolTip(
+		// @todo: need to set a page container, not a root container. the same as I did it for dnd
 		widget.ToolTipOpts.Container(rootContainer),
 		widget.ToolTipOpts.ContentsCreater(&toolTips),
-	)
-
-	dnd := widget.NewDragAndDrop(
-		widget.DragAndDropOpts.Container(rootContainer),
-		widget.DragAndDropOpts.ContentsCreater(drag),
 	)
 
 	rootContainer.AddChild(headerContainer(res))
 
 	var ui *ebitenui.UI
-	rootContainer.AddChild(demoContainer(res, &toolTips, toolTip, dnd, drag, func() *ebitenui.UI {
+	demoContainer, dndPage, dragContents, dropHandler := demoContainer(res, &toolTips, toolTip, func() *ebitenui.UI {
 		return ui
-	}))
+	})
+	rootContainer.AddChild(demoContainer)
+
+	dnd := widget.NewDragAndDrop(
+		widget.DragAndDropOpts.Container(dndPage),
+		widget.DragAndDropOpts.ContentsCreater(dragContents),
+	)
+	dnd.DroppedEvent.AddHandler(dropHandler)
 
 	urlContainer := widget.NewContainer("url", widget.ContainerOpts.Layout(widget.NewRowLayout(
 		widget.RowLayoutOpts.Padding(widget.Insets{
@@ -169,8 +159,8 @@ func header(label string, res *uiResources, opts ...widget.ContainerOpt) widget.
 	return c
 }
 
-func demoContainer(res *uiResources, toolTips *toolTipContents, toolTip *widget.ToolTip, dnd *widget.DragAndDrop, drag *dragContents,
-	ui func() *ebitenui.UI) widget.PreferredSizeLocateableWidget {
+func demoContainer(res *uiResources, toolTips *toolTipContents, toolTip *widget.ToolTip,
+	ui func() *ebitenui.UI) (widget.PreferredSizeLocateableWidget, widget.Locater, *dragContents, event.HandlerFunc) {
 
 	demoContainer := widget.NewContainer(
 		"demo",
@@ -184,31 +174,32 @@ func demoContainer(res *uiResources, toolTips *toolTipContents, toolTip *widget.
 			widget.GridLayoutOpts.Spacing(20, 0),
 		)))
 
+	dndPage, dragContents, dropHandler := dragAndDropPage(res)
 	pages := []interface{}{
+		anchorLayoutPage(res),
+		rowLayoutPage(res),
+		gridLayoutPage(res),
 		buttonPage(res),
 		checkboxPage(res),
+		radioGroupPage(res),
 		listPage(res),
 		comboButtonPage(res),
 		tabBookPage(res),
-		gridLayoutPage(res),
-		rowLayoutPage(res),
 		sliderPage(res),
-		toolTipPage(res, toolTips, toolTip),
-		dragAndDropPage(res, dnd, drag),
+		dndPage,
 		textInputPage(res),
-		radioGroupPage(res),
+		toolTipPage(res, toolTips, toolTip),
 		windowPage(res, ui),
-		anchorLayoutPage(res),
 	}
 
-	collator := collate.New(language.English)
-	sort.Slice(pages, func(a int, b int) bool {
-		p1 := pages[a].(*page)
-		p2 := pages[b].(*page)
-		return collator.CompareString(p1.title, p2.title) < 0
-	})
 
-	pageContainer := newPageContainer(res)
+	windowsManager := newWindowsManager(
+		ui,
+		res.panel.image,
+		res.panel.padding,
+		15,
+		res.list.face,
+		colornames.White)
 
 	pageList := widget.NewList(
 		widget.ListOpts.Entries(pages),
@@ -225,54 +216,14 @@ func demoContainer(res *uiResources, toolTips *toolTipContents, toolTip *widget.
 		widget.ListOpts.EntryFontFace(res.list.face),
 		widget.ListOpts.EntryTextPadding(res.list.entryPadding),
 		widget.ListOpts.HideHorizontalSlider(),
+		widget.ListOpts.AllowReselect(),
 
 		widget.ListOpts.EntrySelectedHandler(func(args *widget.ListEntrySelectedEventArgs) {
-			pageContainer.setPage(args.Entry.(*page))
+			windowsManager.windowToggle(args.Entry.(*page))
 		}))
 	demoContainer.AddChild(pageList)
 
-	demoContainer.AddChild(pageContainer.widget)
-
-	pageList.SetSelectedEntry(pages[0])
-
-	return demoContainer
-}
-
-func newPageContainer(res *uiResources) *pageContainer {
-	c := widget.NewContainer(
-		"page",
-		widget.ContainerOpts.BackgroundImage(res.panel.image),
-		widget.ContainerOpts.Layout(widget.NewRowLayout(
-			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
-			widget.RowLayoutOpts.Padding(res.panel.padding),
-			widget.RowLayoutOpts.Spacing(15))),
-	)
-
-	titleText := widget.NewText(
-		widget.TextOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.RowLayoutData{
-			Stretch: true,
-		})),
-		widget.TextOpts.Text("", res.text.titleFace, res.text.idleColor))
-	c.AddChild(titleText)
-
-	flipBook := widget.NewFlipBook(
-		widget.FlipBookOpts.ContainerOpts(widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.RowLayoutData{
-			Stretch: true,
-		}))),
-	)
-	c.AddChild(flipBook)
-
-	return &pageContainer{
-		widget:    c,
-		titleText: titleText,
-		flipBook:  flipBook,
-	}
-}
-
-func (p *pageContainer) setPage(page *page) {
-	p.titleText.Label = page.title
-	p.flipBook.SetPage(page.content)
-	p.flipBook.RequestRelayout()
+	return demoContainer, dndPage.content.(widget.Locater), dragContents, dropHandler
 }
 
 func newCheckbox(label string, changedHandler widget.CheckboxChangedHandlerFunc, res *uiResources) *widget.LabeledCheckbox {
@@ -292,8 +243,8 @@ func newCheckbox(label string, changedHandler widget.CheckboxChangedHandlerFunc,
 func newPageContentContainer() *widget.Container {
 	return widget.NewContainer(
 		"page content",
-		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.AnchorLayoutData{
-			StretchHorizontal: true,
+		widget.ContainerOpts.WidgetOpts(widget.WidgetOpts.LayoutData(widget.RowLayoutData{
+			Stretch: true,
 		})),
 		widget.ContainerOpts.Layout(widget.NewRowLayout(
 			widget.RowLayoutOpts.Direction(widget.DirectionVertical),
