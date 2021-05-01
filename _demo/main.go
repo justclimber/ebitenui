@@ -338,6 +338,9 @@ func (g *game) Update() error {
 	if inpututil.IsKeyJustPressed(ebiten.KeyF3) {
 		g.ui.SetDebugMode(widget.DebugModeBorderAlwaysShow)
 	}
+	if inpututil.IsKeyJustPressed(ebiten.KeyF4) {
+		g.ui.SetDebugMode(widget.DebugModeInputLayersAlwaysShow)
+	}
 	g.ui.Update()
 	return nil
 }

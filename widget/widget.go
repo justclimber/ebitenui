@@ -88,6 +88,7 @@ const (
 	DebugModeNone = DebugMode(iota)
 	DebugModeBorderOnMouseOver
 	DebugModeBorderAlwaysShow
+	DebugModeInputLayersAlwaysShow
 )
 
 // RenderFunc is a function that renders a widget onto screen. def may be called to defer
@@ -291,7 +292,7 @@ func (w *Widget) RenderInputLayerDebug(screen *ebiten.Image) {
 	}
 	r := w.inputLayer.RectFunc()
 	ebitenutil.DebugPrintAt(screen, w.inputLayer.DebugLabel, r.Min.X, r.Min.Y-18)
-	drawAroundRect(screen, r, colornames.Aqua)
+	drawAroundRect(screen, r, colornames.Yellow)
 }
 
 func (w *Widget) RenderWidgetRectDebug(screen *ebiten.Image) {

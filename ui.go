@@ -66,9 +66,7 @@ func (u *UI) Draw(screen *ebiten.Image) {
 	u.setupInputLayers()
 	u.Container.SetLocation(rect)
 	u.render(screen)
-	if u.debugMode == widget.DebugModeBorderAlwaysShow {
-		u.drawDebug(screen)
-	}
+	u.drawDebug(screen)
 }
 
 // SetDebugMode set debug mode for u to debugMode.
@@ -77,10 +75,21 @@ func (u *UI) SetDebugMode(debugMode widget.DebugMode) {
 }
 
 func (u *UI) drawDebug(screen *ebiten.Image) {
+	if u.debugMode == widget.DebugModeNone {
+		return
+	}
 	ebitenutil.DebugPrint(screen, fmt.Sprintf("TPS: %0.2f, FPS: %0.2f", ebiten.CurrentTPS(), ebiten.CurrentFPS()))
-	u.Container.RenderWidgetSizeDebug(screen)
-	for _, w := range u.windows {
-		w.Container().RenderWidgetSizeDebug(screen)
+	switch u.debugMode {
+	case widget.DebugModeBorderAlwaysShow:
+		u.Container.RenderWidgetSizeDebug(screen)
+		for _, w := range u.windows {
+			w.Container().RenderWidgetSizeDebug(screen)
+		}
+	case widget.DebugModeInputLayersAlwaysShow:
+		u.Container.RenderInputLayerDebug(screen)
+		for _, w := range u.windows {
+			w.Container().RenderInputLayerDebug(screen)
+		}
 	}
 }
 
