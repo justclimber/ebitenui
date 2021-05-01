@@ -30,6 +30,7 @@ type List struct {
 	controlWidgetSpacing     int
 	hideHorizontalSlider     bool
 	hideVerticalSlider       bool
+	isMulti                  bool
 	allowReselect            bool
 
 	init            *MultiOnce
@@ -39,6 +40,7 @@ type List struct {
 	hSlider         *Slider
 	buttons         []*Button
 	selectedEntry   interface{}
+	selectedEntries []interface{}
 }
 
 type ListOpt func(l *List)
@@ -181,6 +183,12 @@ func (o ListOptions) AllowReselect() ListOpt {
 	}
 }
 
+func (o ListOptions) IsMulti() ListOpt {
+	return func(l *List) {
+		l.isMulti = true
+	}
+}
+
 func (l *List) GetWidget() *Widget {
 	l.init.Do()
 	return l.container.GetWidget()
@@ -318,32 +326,71 @@ func (l *List) SetSelectedEntry(e interface{}) {
 }
 
 func (l *List) setSelectedEntry(e interface{}, user bool) {
-	if e != l.selectedEntry || (user && l.allowReselect) {
-		l.init.Do()
-
-		prev := l.selectedEntry
+	if !l.isMulti && e == l.selectedEntry && (!user || !l.allowReselect) {
+		return
+	}
+	l.init.Do()
+	var prev interface{}
+	if l.isMulti {
+		if i, ok := inSelected(e, l.selectedEntries); ok {
+			l.removeFromSelected(i)
+		} else {
+			l.selectedEntries = append(l.selectedEntries, e)
+		}
+		l.changeButtonsHighlight()
+	} else {
+		prev = l.selectedEntry
 		l.selectedEntry = e
 
-		for i, b := range l.buttons {
-			if l.entries[i] == e {
-				b.Image = l.entrySelectedColor
-				b.TextColor = l.entryTextColor
-			} else {
-				b.Image = l.entryUnselectedColor
-				b.TextColor = l.entryUnselectedTextColor
-			}
-		}
+		l.changeButtonsHighlight()
 
-		l.EntrySelectedEvent.Fire(&ListEntrySelectedEventArgs{
-			Entry:         e,
-			PreviousEntry: prev,
-		})
 	}
+	l.EntrySelectedEvent.Fire(&ListEntrySelectedEventArgs{
+		Entry:         e,
+		PreviousEntry: prev,
+	})
+}
+
+func (l *List) changeButtonsHighlight() {
+	var selectedEntries []interface{}
+	if l.isMulti {
+		selectedEntries = l.selectedEntries
+	} else {
+		selectedEntries = []interface{}{l.selectedEntry}
+	}
+
+	for i, b := range l.buttons {
+		if _, ok := inSelected(l.entries[i], selectedEntries); ok {
+			b.Image = l.entrySelectedColor
+			b.TextColor = l.entryTextColor
+		} else {
+			b.Image = l.entryUnselectedColor
+			b.TextColor = l.entryUnselectedTextColor
+		}
+	}
+}
+
+func inSelected(e interface{}, l []interface{}) (int, bool) {
+	for i, es := range l {
+		if es == e {
+			return i, true
+		}
+	}
+	return 0, false
+}
+
+func (l *List) removeFromSelected(i int) {
+	l.selectedEntries = append(l.selectedEntries[:i], l.selectedEntries[i+1:]...)
 }
 
 func (l *List) SelectedEntry() interface{} {
 	l.init.Do()
 	return l.selectedEntry
+}
+
+func (l *List) SelectedEntries() []interface{} {
+	l.init.Do()
+	return l.selectedEntries
 }
 
 func (l *List) SetScrollTop(t float64) {

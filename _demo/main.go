@@ -216,7 +216,7 @@ func demoContainer(res *uiResources, toolTips *toolTipContents, toolTip *widget.
 		widget.ListOpts.EntryFontFace(res.list.face),
 		widget.ListOpts.EntryTextPadding(res.list.entryPadding),
 		widget.ListOpts.HideHorizontalSlider(),
-		widget.ListOpts.AllowReselect(),
+		widget.ListOpts.IsMulti(),
 
 		widget.ListOpts.EntrySelectedHandler(func(args *widget.ListEntrySelectedEventArgs) {
 			windowsManager.windowToggle(args.Entry.(*page))
