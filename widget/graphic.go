@@ -11,12 +11,15 @@ import (
 type Graphic struct {
 	Image          *ebiten.Image
 	ImageNineSlice *image.NineSlice
+	Callback       ImageCallback
 
 	widgetOpts []WidgetOpt
 
 	init   *MultiOnce
 	widget *Widget
 }
+
+type ImageCallback func(*ebiten.Image, img.Rectangle)
 
 type GraphicOpt func(g *Graphic)
 
@@ -57,6 +60,12 @@ func (o GraphicOptions) ImageNineSlice(i *image.NineSlice) GraphicOpt {
 	}
 }
 
+func (o GraphicOptions) Callback(c ImageCallback) GraphicOpt {
+	return func(g *Graphic) {
+		g.Callback = c
+	}
+}
+
 func (g *Graphic) GetWidget() *Widget {
 	g.init.Do()
 	return g.widget
@@ -82,6 +91,9 @@ func (g *Graphic) Render(screen *ebiten.Image, def DeferredRenderFunc, debugMode
 }
 
 func (g *Graphic) draw(screen *ebiten.Image) {
+	if g.Callback != nil {
+		g.Callback(screen, g.widget.Rect)
+	}
 	if g.Image != nil {
 		opts := ebiten.DrawImageOptions{}
 		w, h := g.Image.Size()
