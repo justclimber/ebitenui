@@ -3,8 +3,8 @@ package widget
 import (
 	"image"
 
-	"github.com/justclimber/ebitenui/input"
 	"github.com/hajimehoshi/ebiten/v2"
+	"github.com/justclimber/ebitenui/input"
 )
 
 type Window struct {
@@ -36,7 +36,7 @@ func NewWindow(opts ...WindowOpt) *Window {
 	for _, o := range opts {
 		o(w)
 	}
-	w.init.Append(w.bootstrap)
+	w.init.Append(w.createWidget)
 
 	return w
 }
@@ -59,19 +59,21 @@ func (o WindowOptions) Modal() WindowOpt {
 	}
 }
 
-func (w *Window) bootstrap() {
-	w.container = NewContainer(
-		"window container",
-		ContainerOpts.Layout(NewRowLayout(
-			RowLayoutOpts.Direction(DirectionVertical),
-		)),
-	)
+func (w *Window) createWidget() {
 	if w.movable != nil {
+		w.container = NewContainer(
+			"window container",
+			ContainerOpts.Layout(NewGridLayout(
+				GridLayoutOpts.Stretch([]bool{true}, []bool{false, true}),
+				GridLayoutOpts.Columns(1),
+			)),
+		)
 		w.container.AddChild(w.movable)
 		w.state = w.idleState()
+		w.container.AddChild(w.contents)
+	} else {
+		w.container = w.contents
 	}
-
-	w.container.AddChild(w.contents)
 }
 
 func (w *Window) Container() *Container {
